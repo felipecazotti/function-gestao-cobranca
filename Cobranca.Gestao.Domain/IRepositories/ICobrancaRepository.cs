@@ -1,9 +1,9 @@
 using Cobranca.Lib.Dominio.Models;
 
-namespace TriagemMensagem.Domain.IRepositories;
+namespace Cobranca.Gestao.Domain.IRepositories;
 public interface ICobrancaRepository<T> where T : CobrancaBase
 {
-    Task SalvarAsync(CobrancaRecorrente cobrancaRecorrente);
+    Task SalvarAsync(T cobrancaRecorrente);
     Task<bool> ExcluirAsync(string id);
-    Task<List<CobrancaRecorrente>> ListarAsync();
+    Task<List<T>> ListarAsync();
 }
