@@ -23,13 +23,17 @@ builder.Services
     .AddScoped<ICobrancaRepository<CobrancaRecorrente>>(provider =>
     {
         var database = provider.GetRequiredService<IMongoDatabase>();
-        var collectionName = configuration["MongoDbConfiguration:CollectionNameCobrancaRecorrente"] ?? throw new Exception("Nome da collection nao especificado");
+        var collectionName = configuration["MongoDbConfiguration:CollectionNameCobrancaRecorrente"] ?? 
+        throw new Exception("Nome da collection cob recorrente nao especificado");
+
         return new CobrancaRepository<CobrancaRecorrente>(database, collectionName);
     })
     .AddScoped<ICobrancaRepository<CobrancaUnica>>(provider =>
     {
         var database = provider.GetRequiredService<IMongoDatabase>();
-        var collectionName = configuration["MongoDbConfiguration:CollectionNameCobrancaUnica"] ?? throw new Exception("Nome da collection nao especificado");
+        var collectionName = configuration["MongoDbConfiguration:CollectionNameCobrancaUnica"] ?? 
+        throw new Exception("Nome da collection cob unica nao especificado");
+
         return new CobrancaRepository<CobrancaUnica>(database, collectionName);
     });
 
