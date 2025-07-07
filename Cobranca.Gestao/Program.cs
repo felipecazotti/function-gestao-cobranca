@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using Cobranca.Gestao.Domain.IRepositories;
 using Cobranca.Gestao.Repository;
 using Cobranca.Lib.Dominio.Models;
@@ -9,9 +11,14 @@ using MongoDB.Driver;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
+var configuration = builder.Configuration;
+
 builder.ConfigureFunctionsWebApplication();
 
-var configuration = builder.Configuration;
+builder.Services.Configure<JsonSerializerOptions>(options =>
+{
+    options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+});
 
 builder.Services
     .AddSingleton(provider =>
