@@ -68,4 +68,26 @@ public static class ProcessadorCobrancaUnica
             DataCobranca = c.DataCobranca
         })];
     }
+
+    public static DetalheCobrancaUnicaResponse DominioParaDetalheResponse(CobrancaUnica cobrancaUnica)
+    {
+        if (cobrancaUnica == null)
+        {
+            throw new ArgumentNullException(nameof(cobrancaUnica), "A cobrança única não pode ser nula.");
+        }
+        return new DetalheCobrancaUnicaResponse
+        {
+            Id = cobrancaUnica.Id ?? "",
+            NomeCobranca = cobrancaUnica.NomeCobranca,
+            DescricaoCobranca = cobrancaUnica.DescricaoCobranca,
+            ValorCobranca = cobrancaUnica.ValorCobranca,
+            NomeDevedor = cobrancaUnica.NomeDevedor,
+            EmailDevedor = cobrancaUnica.EmailDevedor,
+            NomeRecebedor = cobrancaUnica.NomeRecebedor,
+            ChavePix = cobrancaUnica.ChavePix,
+            QrCode = cobrancaUnica.QrCode,
+            DataHoraRegistroCobranca = cobrancaUnica.DataHoraRegistroCobranca,
+            DataCobranca = cobrancaUnica.DataCobranca
+        };
+    }
 }
