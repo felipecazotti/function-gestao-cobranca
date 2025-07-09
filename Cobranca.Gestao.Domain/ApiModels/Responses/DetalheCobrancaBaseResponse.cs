@@ -12,5 +12,4 @@ public abstract class DetalheCobrancaBaseResponse
     public required string ChavePix { get; set; }
     public required string QrCode { get; set; }
     public required DateTime DataHoraRegistroCobranca { get; set; }
-    public bool EhCobrancaRecorrente { get; set; }
 }

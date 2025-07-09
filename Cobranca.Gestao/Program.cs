@@ -13,6 +13,18 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
 
+var mongoConnectionString = configuration["MongoDbConfiguration:ConnectionString"] ??
+        throw new Exception("String de conexao MongoDB nao especificada");
+
+var mongoDatabaseName = configuration["MongoDbConfiguration:DatabaseName"] ??
+        throw new Exception("Nome do banco de dados MongoDB nao especificado");
+
+var nomeCollectionCobrancaRecorrente = configuration["MongoDbConfiguration:CollectionNameCobrancaRecorrente"] ??
+        throw new Exception("Nome da collection cob recorrente nao especificado");
+
+var nomeCollectionCobrancaUnica = configuration["MongoDbConfiguration:CollectionNameCobrancaUnica"] ??
+        throw new Exception("Nome da collection cob unica nao especificado");
+
 builder.ConfigureFunctionsWebApplication();
 
 builder.Services.Configure<JsonSerializerOptions>(options =>
@@ -23,25 +35,23 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 builder.Services
     .AddSingleton(provider =>
     {
-        var mongoClient = new MongoClient(configuration["MongoDbConfiguration:ConnectionString"]);
-        var mongoDatabase = mongoClient.GetDatabase(configuration["MongoDbConfiguration:DatabaseName"]);
+        var mongoClient = new MongoClient(mongoConnectionString);
+        var mongoDatabase = mongoClient.GetDatabase(mongoDatabaseName);
         return mongoDatabase;
     })
-    .AddScoped<ICobrancaRepository<CobrancaRecorrente>>(provider =>
+    .AddScoped<ICobrancaRecorrenteRepository>(provider =>
     {
         var database = provider.GetRequiredService<IMongoDatabase>();
-        var collectionName = configuration["MongoDbConfiguration:CollectionNameCobrancaRecorrente"] ?? 
-        throw new Exception("Nome da collection cob recorrente nao especificado");
+        var collectionName = nomeCollectionCobrancaRecorrente;
 
-        return new CobrancaRepository<CobrancaRecorrente>(database, collectionName);
+        return new CobrancaRecorrenteRepository(database, collectionName);
     })
-    .AddScoped<ICobrancaRepository<CobrancaUnica>>(provider =>
+    .AddScoped<ICobrancaUnicaRepository>(provider =>
     {
         var database = provider.GetRequiredService<IMongoDatabase>();
-        var collectionName = configuration["MongoDbConfiguration:CollectionNameCobrancaUnica"] ?? 
-        throw new Exception("Nome da collection cob unica nao especificado");
+        var collectionName = nomeCollectionCobrancaUnica;
 
-        return new CobrancaRepository<CobrancaUnica>(database, collectionName);
+        return new CobrancaUnicaRepository(database, collectionName);
     });
 
 
