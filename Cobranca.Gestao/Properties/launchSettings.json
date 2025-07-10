@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Cobranca.Gestao": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7053",
+      "launchBrowser": false
+    }
+  }
+}
