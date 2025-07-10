@@ -5,7 +5,7 @@ using Cobranca.Gestao.Domain.Projecoes;
 
 namespace Cobranca.Gestao.Repository;
 
-public abstract class CobrancaBaseRepository<T>(IMongoDatabase database, string nomeCollection) : ICobrancaBaseRepository<T> where T : CobrancaBase
+public abstract class CobrancaBaseRepository<T>(IMongoDatabase database, string nomeCollection) : ICobrancaRepository<T> where T : CobrancaBase
 {
     protected readonly IMongoCollection<T> cobrancaCollection = database.GetCollection<T>(nomeCollection);
 
@@ -49,4 +49,6 @@ public abstract class CobrancaBaseRepository<T>(IMongoDatabase database, string 
 
         return atualizacoes;
     }
+
+    public abstract Task<bool> AtualizarAsync(EdicaoCobrancaBaseProjecao edicaoCobrancaBaseProjecao);
 }

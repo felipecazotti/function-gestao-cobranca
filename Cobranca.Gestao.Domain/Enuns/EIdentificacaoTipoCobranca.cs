@@ -2,6 +2,6 @@
 
 public enum EIdentificacaoTipoCobranca
 {
-    UNICA,
-    RECORRENTE
+    RECORRENTE,
+    UNICA
 }

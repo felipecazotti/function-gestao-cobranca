@@ -52,7 +52,7 @@ public static class ProcessadorCobrancaUnica
             NomeDevedor = request.NomeDevedor,
             EmailDevedor = request.EmailDevedor,
             NomeRecebedor = request.NomeRecebedor,
-            DataCobranca = request.DataCobranca ?? throw new ArgumentException("Data de cobrança é obrigatória.", nameof(request.DataCobranca)),
+            DataCobranca = request.DataCobranca
         };
     }
 

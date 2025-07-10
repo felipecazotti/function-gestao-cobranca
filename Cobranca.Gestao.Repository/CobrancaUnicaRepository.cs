@@ -6,16 +6,17 @@ using MongoDB.Driver;
 namespace Cobranca.Gestao.Repository;
 
 public class CobrancaUnicaRepository(IMongoDatabase database, string nomeCollectionCobrancaUnica) 
-    : CobrancaBaseRepository<CobrancaUnica>(database, nomeCollectionCobrancaUnica), ICobrancaUnicaRepository
+    : CobrancaBaseRepository<CobrancaUnica>(database, nomeCollectionCobrancaUnica), ICobrancaRepository<CobrancaUnica>
 {
 
-    public async Task<bool> AtualizarAsync(EdicaoCobrancaUnicaProjecao edicaoCobrancaProjecao)
+    public override async Task<bool> AtualizarAsync(EdicaoCobrancaBaseProjecao edicaoCobrancaBaseProjecao)
     {
-        var filtro = Builders<CobrancaUnica>.Filter.Eq(c => c.Id, edicaoCobrancaProjecao.Id);
-        var atualizacoes = ObterDefinicoesAtualizacao(edicaoCobrancaProjecao);
+        var edicaoCobrancaUnicaProjecao = (EdicaoCobrancaUnicaProjecao)edicaoCobrancaBaseProjecao;
+        var filtro = Builders<CobrancaUnica>.Filter.Eq(c => c.Id, edicaoCobrancaUnicaProjecao.Id);
+        var atualizacoes = ObterDefinicoesAtualizacao(edicaoCobrancaUnicaProjecao);
        
-        if (edicaoCobrancaProjecao.DataCobranca.HasValue)
-            atualizacoes.Add(Builders<CobrancaUnica>.Update.Set(c => c.DataCobranca, edicaoCobrancaProjecao.DataCobranca.Value));
+        if (edicaoCobrancaUnicaProjecao.DataCobranca.HasValue)
+            atualizacoes.Add(Builders<CobrancaUnica>.Update.Set(c => c.DataCobranca, edicaoCobrancaUnicaProjecao.DataCobranca.Value));
 
         if (atualizacoes.Count == 0)
             return false;

@@ -1,15 +1,24 @@
+using Cobranca.Gestao.Domain;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace Cobranca.Gestao.Triggers;
 
-public class DelecaoCobrancaTrigger(ILogger<DelecaoCobrancaTrigger> logger)
+public class DelecaoCobrancaTrigger(ILogger<DelecaoCobrancaTrigger> logger, ICobrancaService cobrancaService)
 {
-    [Function("Cobranca")]
-    public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "{id}")] string id)
+    [Function("DelecaoCobranca")]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "{id}")] HttpRequest req, string id)
     {
-        logger.LogInformation("C# HTTP trigger function processed a request.");
-        return new OkObjectResult("Welcome to Azure Functions!");
+        var houveExclusao = await cobrancaService.ExcluirCobrancaAsync(id);
+        if (houveExclusao)
+        {
+            logger.LogInformation($"Cobranca {id} excluída com sucesso.");
+            return new OkObjectResult(new { Codigo = "OK", Messagem = $"Cobranca {id} excluída com sucesso." });
+        }
+
+        logger.LogWarning($"Cobranca {id} do tipo não encontrada ou não pôde ser excluída.");
+        return new NotFoundObjectResult(new { Codigo = "NotFound", Messagem = $"Cobranca {id} não encontrada ou não pôde ser excluída." });
     }
 }

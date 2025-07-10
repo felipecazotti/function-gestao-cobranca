@@ -52,9 +52,7 @@ public static class ProcessadorCobrancaRecorrente
             NomeDevedor = request.NomeDevedor,
             EmailDevedor = request.EmailDevedor,
             NomeRecebedor = request.NomeRecebedor,
-            DiaMesCobranca = request.DiaMesCobranca ?? throw new ArgumentException(
-                "Dia da cobrança é obrigatória.",
-                nameof(request.DiaMesCobranca)),
+            DiaMesCobranca = request.DiaMesCobranca
         };
     }
 

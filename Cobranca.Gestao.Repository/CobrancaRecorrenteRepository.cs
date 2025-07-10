@@ -6,15 +6,16 @@ using MongoDB.Driver;
 namespace Cobranca.Gestao.Repository;
 
 public class CobrancaRecorrenteRepository(IMongoDatabase database, string nomeCollectionCobrancaUnica) 
-    : CobrancaBaseRepository<CobrancaRecorrente>(database, nomeCollectionCobrancaUnica), ICobrancaRecorrenteRepository
+    : CobrancaBaseRepository<CobrancaRecorrente>(database, nomeCollectionCobrancaUnica), ICobrancaRepository<CobrancaRecorrente>
 {
-    public async Task<bool> AtualizarAsync(EdicaoCobrancaRecorrenteProjecao edicaoCobrancaProjecao)
+    public override async Task<bool> AtualizarAsync(EdicaoCobrancaBaseProjecao edicaoCobrancaBaseProjecao)
     {
-        var filtro = Builders<CobrancaRecorrente>.Filter.Eq(c => c.Id, edicaoCobrancaProjecao.Id);
-        var atualizacoes = ObterDefinicoesAtualizacao(edicaoCobrancaProjecao);
+        var edicaoCobrancaRecorrenteProjecao = (EdicaoCobrancaRecorrenteProjecao)edicaoCobrancaBaseProjecao;
+        var filtro = Builders<CobrancaRecorrente>.Filter.Eq(c => c.Id, edicaoCobrancaRecorrenteProjecao.Id);
+        var atualizacoes = ObterDefinicoesAtualizacao(edicaoCobrancaRecorrenteProjecao);
        
-        if (edicaoCobrancaProjecao.DiaMesCobranca.HasValue)
-            atualizacoes.Add(Builders<CobrancaRecorrente>.Update.Set(c => c.DiaMesCobranca, edicaoCobrancaProjecao.DiaMesCobranca.Value));
+        if (edicaoCobrancaRecorrenteProjecao.DiaMesCobranca.HasValue)
+            atualizacoes.Add(Builders<CobrancaRecorrente>.Update.Set(c => c.DiaMesCobranca, edicaoCobrancaRecorrenteProjecao.DiaMesCobranca.Value));
 
         if (atualizacoes.Count == 0)
             return false;
@@ -23,6 +24,6 @@ public class CobrancaRecorrenteRepository(IMongoDatabase database, string nomeCo
 
         var resultado = await cobrancaCollection.UpdateOneAsync(filtro, atualizacao);
 
-        return resultado.ModifiedCount > 0;
+        return resultado.MatchedCount > 0;
     }
 }

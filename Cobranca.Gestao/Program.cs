@@ -3,11 +3,13 @@ using System.Text.Json;
 using Cobranca.Gestao.Domain.IRepositories;
 using Cobranca.Gestao.Repository;
 using Cobranca.Lib.Dominio.Models;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
+using Microsoft.Azure.Functions.Worker;
+using Cobranca.Gestao.Domain;
+using Cobranca.Gestao.Service;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -27,10 +29,10 @@ var nomeCollectionCobrancaUnica = configuration["MongoDbConfiguration:Collection
 
 builder.ConfigureFunctionsWebApplication();
 
-builder.Services.Configure<JsonSerializerOptions>(options =>
+/*builder.Services.Configure<JsonSerializerOptions>(options =>
 {
     options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-});
+});*/
 
 builder.Services
     .AddSingleton(provider =>
@@ -39,20 +41,21 @@ builder.Services
         var mongoDatabase = mongoClient.GetDatabase(mongoDatabaseName);
         return mongoDatabase;
     })
-    .AddScoped<ICobrancaRecorrenteRepository>(provider =>
+    .AddScoped<ICobrancaRepository<CobrancaRecorrente>>(provider =>
     {
         var database = provider.GetRequiredService<IMongoDatabase>();
         var collectionName = nomeCollectionCobrancaRecorrente;
 
         return new CobrancaRecorrenteRepository(database, collectionName);
     })
-    .AddScoped<ICobrancaUnicaRepository>(provider =>
+    .AddScoped<ICobrancaRepository<CobrancaUnica>>(provider =>
     {
         var database = provider.GetRequiredService<IMongoDatabase>();
         var collectionName = nomeCollectionCobrancaUnica;
 
         return new CobrancaUnicaRepository(database, collectionName);
-    });
+    })
+    .AddScoped<ICobrancaService, CobrancaService>();
 
 
 builder.Services
