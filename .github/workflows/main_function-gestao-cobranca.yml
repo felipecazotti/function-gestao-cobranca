@@ -32,7 +32,8 @@ jobs:
       - name: Add Azure Artifacts' feed
         shell: pwsh
         run: |
-          dotnet nuget add source --username anything --password ${{ secrets.AZURE_DEVOPS_PAT }} --store-password-in-clear-text --name AzureArtifacts "https://pkgs.dev.azure.com/felipecazotti/gestao_cobrancas/_packaging/nuget_felipecazotti/nuget/v3/index.json"
+          dotnet nuget remove source AzureArtifactsGestaoCobrancas 2>$null || true
+          dotnet nuget add source --username anything --password ${{ secrets.AZURE_DEVOPS_PAT }} --store-password-in-clear-text --name AzureArtifactsGestaoCobrancas "https://pkgs.dev.azure.com/felipecazotti/gestao_cobrancas/_packaging/nuget_felipecazotti/nuget/v3/index.json"
 
       - name: 'Resolve Project Dependencies Using Dotnet'
         shell: pwsh
