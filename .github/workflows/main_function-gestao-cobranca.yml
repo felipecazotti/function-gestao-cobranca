@@ -29,15 +29,10 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Adicionar feed do Azure Artifacts
+      - name: Add Azure Artifacts' feed
         shell: pwsh
         run: |
-          dotnet nuget add source `
-            --username anything `
-            --password ${{ secrets.AZURE_DEVOPS_PAT }} `
-            --store-password-in-clear-text `
-            --name AzureArtifacts `
-            "https://pkgs.dev.azure.com/felipecazotti/gestao_cobrancas/_packaging/nuget_felipecazotti/nuget/v3/index.json"
+          dotnet nuget add source --username anything --password ${{ secrets.AZURE_DEVOPS_PAT }} --store-password-in-clear-text --name AzureArtifacts "https://pkgs.dev.azure.com/felipecazotti/gestao_cobrancas/_packaging/nuget_felipecazotti/nuget/v3/index.json"
 
       - name: 'Resolve Project Dependencies Using Dotnet'
         shell: pwsh
