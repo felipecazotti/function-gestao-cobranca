@@ -2,7 +2,6 @@
 using Cobranca.Gestao.Domain.ApiModels.Responses;
 using Cobranca.Gestao.Domain.Projecoes;
 using Cobranca.Lib.Dominio.Models;
-using Cobranca.Lib.Dominio.Processadores;
 
 namespace Cobranca.Gestao.Domain.ProcessadoresMensagens;
 
@@ -24,7 +23,7 @@ public static class ProcessadorCobrancaUnica
             EmailDevedor = request.EmailDevedor,
             NomeRecebedor = request.NomeRecebedor,
             ChavePix = request.ChavePix,
-            QrCode = GeradorPayloadQrCode.GerarPayloadPixEstatico(
+            QrCode = ProcessadorPayloadQrCode.GerarPayloadPixEstatico(
                 request.ChavePix,
                 request.NomeDonoChave,
                 request.CidadeDonoChave,
