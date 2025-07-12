@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using Cobranca.Gestao.Domain.IRepositories;
 using Cobranca.Gestao.Repository;
 using Cobranca.Lib.Dominio.Models;
@@ -28,11 +26,6 @@ var nomeCollectionCobrancaUnica = configuration["MongoDbConfiguration:Collection
         throw new Exception("Nome da collection cob unica nao especificado");
 
 builder.ConfigureFunctionsWebApplication();
-
-/*builder.Services.Configure<JsonSerializerOptions>(options =>
-{
-    options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-});*/
 
 builder.Services
     .AddSingleton(provider =>
