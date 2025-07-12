@@ -10,15 +10,15 @@ namespace Cobranca.Gestao.Triggers;
 public class DetalheCobrancaTrigger(ILogger<DetalheCobrancaTrigger> logger, ICobrancaService cobrancaService)
 {
     [Function("DetalheCobranca")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{id}/{tipoCobranca}")] HttpRequest req, string id, EIdentificacaoTipoCobranca? tipoCobranca)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{id}/{tipoCobranca}")] HttpRequest req, string id, string tipoCobranca)
     {
-        if (tipoCobranca == null)
+        if (!Enum.TryParse<EIdentificacaoTipoCobranca>(tipoCobranca, ignoreCase: true, out var tipoCobrancaEnum))
         {
-            logger.LogError("Tipo de cobrança não pode ser nulo");
-            return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Tipo de cobrança não pode ser nulo" });
+            logger.LogError("Tipo de cobrança inválido");
+            return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Tipo de cobrança inválido" });
         }
 
-        if (tipoCobranca == EIdentificacaoTipoCobranca.UNICA)
+        if (tipoCobrancaEnum == EIdentificacaoTipoCobranca.UNICA)
         {
             var detalheCobrancaUnica = await cobrancaService.ObterCobrancaUnicaAsync(id);
             if (detalheCobrancaUnica == null)
@@ -29,7 +29,7 @@ public class DetalheCobrancaTrigger(ILogger<DetalheCobrancaTrigger> logger, ICob
             return new OkObjectResult(detalheCobrancaUnica);
         }
 
-        if (tipoCobranca == EIdentificacaoTipoCobranca.RECORRENTE)
+        if (tipoCobrancaEnum == EIdentificacaoTipoCobranca.RECORRENTE)
         {
             var detalheCobrancaRecorrente = await cobrancaService.ObterCobrancaRecorrenteAsync(id);
             if (detalheCobrancaRecorrente == null)

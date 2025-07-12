@@ -12,8 +12,14 @@ namespace Cobranca.Gestao.Triggers;
 public class EdicaoCobrancaTrigger(ILogger<EdicaoCobrancaTrigger> logger, ICobrancaService cobrancaService)
 {
     [Function("EdicaoCobranca")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "patch", Route = "{tipoCobranca}")] HttpRequest req, EIdentificacaoTipoCobranca? tipoCobranca)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "patch", Route = "{tipoCobranca}")] HttpRequest req, string tipoCobranca)
     {
+        if (!Enum.TryParse<EIdentificacaoTipoCobranca>(tipoCobranca, ignoreCase: true, out var tipoCobrancaEnum))
+        {
+            logger.LogError("Tipo de cobrança inválido");
+            return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Tipo de cobrança inválido" });
+        }
+
         var requestString = await new StreamReader(req.Body).ReadToEndAsync();
         var edicaoCobrancaRequest = JsonSerializer.Deserialize<EdicaoCobrancaRequest>(requestString);
 
@@ -29,13 +35,7 @@ public class EdicaoCobrancaTrigger(ILogger<EdicaoCobrancaTrigger> logger, ICobra
             return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Id da cobrança não pode ser nulo" });
         }
 
-        if (tipoCobranca == null)
-        {
-            logger.LogError("Tipo de cobrança não pode ser nulo");
-            return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Tipo de cobrança não pode ser nulo" });
-        }
-
-        var houveEdicao = await cobrancaService.EditarCobrancaAsync(edicaoCobrancaRequest, tipoCobranca.Value);
+        var houveEdicao = await cobrancaService.EditarCobrancaAsync(edicaoCobrancaRequest, tipoCobrancaEnum);
         if (houveEdicao)
         {
             logger.LogInformation($"Cobranca {edicaoCobrancaRequest.Id} do tipo {tipoCobranca} editada com sucesso.");
