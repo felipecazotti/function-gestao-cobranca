@@ -1,6 +1,8 @@
-﻿using Cobranca.Gestao.Domain.ApiModels.Requests;
+﻿using System.Net;
+using Cobranca.Gestao.Domain.ApiModels.Requests;
 using Cobranca.Gestao.Domain.ApiModels.Responses;
 using Cobranca.Gestao.Domain.Projecoes;
+using Cobranca.Lib.Dominio.Exceptions;
 using Cobranca.Lib.Dominio.Models;
 
 namespace Cobranca.Gestao.Domain.ProcessadoresMensagens;
@@ -10,9 +12,7 @@ public static class ProcessadorCobrancaRecorrente
     public static CobrancaRecorrente RequestParaDominio(CriacaoCobrancaRequest request)
     {
         if (request == null)
-        {
-            throw new ArgumentNullException(nameof(request), "O objeto de requisição não pode ser nulo.");
-        }
+            throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "Request nao pode ser nula");
 
         return new CobrancaRecorrente
         {
@@ -29,22 +29,20 @@ public static class ProcessadorCobrancaRecorrente
                 request.CidadeDonoChave,
                 request.ValorCobranca),
             DataHoraRegistroCobranca = DateTime.Now, 
-            DiaMesCobranca = request.DiaMesCobranca ?? throw new ArgumentException(
-                "Dia da cobrança é obrigatória.",
-                nameof(request.DiaMesCobranca)),
+            DiaMesCobranca = request.DiaMesCobranca 
+                ?? throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "O campo 'DiaMesCobranca' é obrigatório para cobranças recorrentes."),
         };
     }
 
     public static EdicaoCobrancaRecorrenteProjecao RequestParaProjecao(EdicaoCobrancaRequest request)
     {
         if (request == null)
-        {
-            throw new ArgumentNullException(nameof(request), "O objeto de requisição não pode ser nulo.");
-        }
+            throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "Request nao pode ser nula");
 
         return new EdicaoCobrancaRecorrenteProjecao
         {
-            Id = request.Id ?? throw new ArgumentException("O campo 'Id' é obrigatório.", nameof(request.Id)),
+            Id = request.Id 
+                ?? throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "O campo 'Id' é obrigatório para edição de cobranças recorrentes."),
             NomeCobranca = request.NomeCobranca,
             DescricaoCobranca = request.DescricaoCobranca,
             ValorCobranca = request.ValorCobranca,
@@ -71,9 +69,8 @@ public static class ProcessadorCobrancaRecorrente
     public static DetalheCobrancaRecorrenteResponse DominioParaDetalheResponse(CobrancaRecorrente cobrancaRecorrente)
     {
         if (cobrancaRecorrente == null)
-        {
-            throw new ArgumentNullException(nameof(cobrancaRecorrente), "A cobrança única não pode ser nula.");
-        }
+            throw new RegraNegocioException(HttpStatusCode.NotFound, "NotFound", "Cobranca Recorrente não encontrada.");
+
         return new DetalheCobrancaRecorrenteResponse
         {
             Id = cobrancaRecorrente.Id ?? "",

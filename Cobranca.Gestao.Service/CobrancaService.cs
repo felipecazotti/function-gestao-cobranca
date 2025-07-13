@@ -1,9 +1,11 @@
-﻿using Cobranca.Gestao.Domain;
+﻿using System.Net;
+using Cobranca.Gestao.Domain;
 using Cobranca.Gestao.Domain.ApiModels.Requests;
 using Cobranca.Gestao.Domain.ApiModels.Responses;
 using Cobranca.Gestao.Domain.Enuns;
 using Cobranca.Gestao.Domain.IRepositories;
 using Cobranca.Gestao.Domain.ProcessadoresMensagens;
+using Cobranca.Lib.Dominio.Exceptions;
 using Cobranca.Lib.Dominio.Models;
 
 namespace Cobranca.Gestao.Service;
@@ -24,9 +26,7 @@ public class CobrancaService(ICobrancaRepository<CobrancaRecorrente> cobrancaRec
             return cobrancaUnicaRepository.SalvarAsync(cobrancaUnica);
         }
         else
-        {
-            throw new ArgumentException("A requisição deve conter uma data de cobrança ou um dia do mês para cobrança recorrente.");
-        }
+            throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "A requisição deve conter uma data de cobrança ou um dia do mês para cobrança recorrente.");
     }
 
     public async Task<DetalheCobrancaRecorrenteResponse> ObterCobrancaRecorrenteAsync(string id)
@@ -68,24 +68,14 @@ public class CobrancaService(ICobrancaRepository<CobrancaRecorrente> cobrancaRec
             return cobrancaUnicaRepository.AtualizarAsync(cobrancaUnica);
         }
         else
-        {
-            throw new ArgumentException("A requisição deve conter uma data de cobrança ou um dia do mês para cobrança recorrente.");
-        }
+            throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "A requisição deve conter uma data de cobrança ou um dia do mês para cobrança recorrente.");
     }
 
     public async Task<bool> ExcluirCobrancaAsync(string id)
     {
         var taskDelecaoRecorrente = cobrancaRecorrenteRepository.ExcluirAsync(id);
         var taskDelecaoUnica = cobrancaUnicaRepository.ExcluirAsync(id);
-
-        try
-        {
-            var houveramDelecoes = await Task.WhenAll(taskDelecaoRecorrente, taskDelecaoUnica);
-            return houveramDelecoes[0] || houveramDelecoes[1];
-        }
-        catch
-        {
-            return false;
-        }
+        var houveramDelecoes = await Task.WhenAll(taskDelecaoRecorrente, taskDelecaoUnica);
+        return houveramDelecoes[0] || houveramDelecoes[1];
     }
 }

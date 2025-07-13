@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using Microsoft.Azure.Functions.Worker;
 using Cobranca.Gestao.Domain;
 using Cobranca.Gestao.Service;
+using Cobranca.Gestao.Middlewares;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ var nomeCollectionCobrancaUnica = configuration["MongoDbConfiguration:Collection
         throw new Exception("Nome da collection cob unica nao especificado");
 
 builder.ConfigureFunctionsWebApplication();
+
+builder.UseMiddleware<ErroMiddleware>();
 
 builder.Services
     .AddSingleton(provider =>

@@ -1,7 +1,10 @@
+using System.Net;
 using System.Text.Json;
 using Cobranca.Gestao.Domain;
 using Cobranca.Gestao.Domain.ApiModels.Requests;
 using Cobranca.Gestao.Domain.Enuns;
+using Cobranca.Lib.Dominio.Exceptions;
+using Cobranca.Lib.Dominio.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -15,34 +18,22 @@ public class EdicaoCobrancaTrigger(ILogger<EdicaoCobrancaTrigger> logger, ICobra
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "patch", Route = "{tipoCobranca}")] HttpRequest req, string tipoCobranca)
     {
         if (!Enum.TryParse<EIdentificacaoTipoCobranca>(tipoCobranca, ignoreCase: true, out var tipoCobrancaEnum))
-        {
-            logger.LogError("Tipo de cobrança inválido");
-            return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Tipo de cobrança inválido" });
-        }
+            throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "Tipo de cobrança inválido. Deve ser 'Unica' ou 'Recorrente'.");
 
         var requestString = await new StreamReader(req.Body).ReadToEndAsync();
-        var edicaoCobrancaRequest = JsonSerializer.Deserialize<EdicaoCobrancaRequest>(requestString);
-
-        if(edicaoCobrancaRequest == null)
-        {
-            logger.LogError("Request não pode ser nula");
-            return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Request não pode ser nula" });
-        }
+        var edicaoCobrancaRequest = JsonSerializer.Deserialize<EdicaoCobrancaRequest>(requestString)
+            ?? throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "Request não pode ser nula");
 
         if (string.IsNullOrEmpty(edicaoCobrancaRequest.Id))
-        {
-            logger.LogError("Id da cobrança não pode ser nulo");
-            return new BadRequestObjectResult(new { Codigo = "BadRequest", Messagem = "Id da cobrança não pode ser nulo" });
-        }
+            throw new RegraNegocioException(HttpStatusCode.BadRequest, "BadRequest", "Id da cobrança não pode ser nulo");
 
         var houveEdicao = await cobrancaService.EditarCobrancaAsync(edicaoCobrancaRequest, tipoCobrancaEnum);
         if (houveEdicao)
         {
-            logger.LogInformation($"Cobranca {edicaoCobrancaRequest.Id} do tipo {tipoCobranca} editada com sucesso.");
-            return new OkObjectResult(new { Codigo = "OK", Messagem = "Cobranca editada com sucesso" });
+            logger.LogInformation("Cobranca {id} do tipo {tipoCobranca} editada com sucesso.", edicaoCobrancaRequest.Id, tipoCobranca);
+            return new OkObjectResult(new ResponseModel{ Codigo = "OK", Messagem = "Cobranca editada com sucesso" });
         }
 
-        logger.LogWarning($"Cobranca {edicaoCobrancaRequest.Id} do tipo {tipoCobranca} não encontrada ou não pôde ser editada.");
-        return new NotFoundObjectResult(new { Codigo = "NotFound", Messagem = $"Cobranca {edicaoCobrancaRequest.Id} do tipo {tipoCobranca} não encontrada." });
+        throw new RegraNegocioException(HttpStatusCode.NotFound, "NotFound", $"Cobranca {edicaoCobrancaRequest.Id} do tipo {tipoCobranca} não encontrada ou não pôde ser editada.");
     }
 }
